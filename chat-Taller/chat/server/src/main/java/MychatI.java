@@ -3,7 +3,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import com.zeroc.Ice.Current;
-import com.zeroc.Ice.Util;
 
 public class MychatI implements Demo.ChatGroup {
     // Mapa para almacenar grupos de chat y los usuarios en cada grupo
@@ -38,21 +37,21 @@ public class MychatI implements Demo.ChatGroup {
         }
     }
 
-    /* 
     @Override
-    public void sendMessageToUser(String userName, String message, Current current) {
+    public void sendMessageToUser(String userName, String message, String sender, Current current) {
         // Verificar si el usuario está conectado y su proxy está disponible
         if (userConnections.containsKey(userName)) {
             // Obtener el proxy del usuario
             String userProxyString = userConnections.get(userName);
-            com.zeroc.Ice.ObjectPrx userProxy = com.zeroc.Ice.Util.stringToProxy(userProxyString);
+            com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator(); // Obtener el comunicador
+            com.zeroc.Ice.ObjectPrx userProxy = communicator.stringToProxy(userProxyString); // Convertir el string a proxy
             Demo.UserPrx user = Demo.UserPrx.checkedCast(userProxy);
-            
+    
             if (user != null) {
-                // Enviar el mensaje al usuario
+                // Enviar el mensaje al usuario junto con el nombre del remitente
                 try {
-                    user.receiveMessage(message); // Método para que el usuario reciba el mensaje
-                    System.out.println("Mensaje enviado a " + userName + ": " + message);
+                    user.receiveMessage(message, sender); // Método para que el usuario reciba el mensaje con el remitente
+                    System.out.println("Mensaje enviado a " + userName + " de " + sender + ": " + message);
                 } catch (Exception e) {
                     System.out.println("Error al enviar el mensaje a " + userName + ": " + e.getMessage());
                 }
@@ -64,7 +63,7 @@ public class MychatI implements Demo.ChatGroup {
         }
     }
     
-    */
+    
     @Override
     public void sendMessageToGroup(String groupName, String message, String sender, Current current) {
         Set<String> users = groups.get(groupName);
@@ -90,18 +89,14 @@ public class MychatI implements Demo.ChatGroup {
     }
 
     @Override
-    public void registerUser(String username,Current current) {
+    public void registerUserWithProxy(String username, String userProxy, Current current) {
         if (!registeredUsers.contains(username)) {
             registeredUsers.add(username);
-            System.out.println("Usuario registrado: " + username);
+            userConnections.put(username, userProxy); // Guardar el proxy del usuario
+            System.out.println("Usuario registrado: " + username + " con proxy " + userProxy);
         } else {
             System.out.println("El usuario " + username + " ya está registrado.");
         }
     }
-
-    @Override
-    public void sendMessageToUser(String userName, String message, Current current) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'sendMessageToUser'");
-    }
+    
 }

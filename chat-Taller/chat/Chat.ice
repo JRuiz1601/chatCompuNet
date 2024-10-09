@@ -6,11 +6,15 @@ module Demo
     }
 
     interface ChatGroup {
-        void createGroup(string groupName, string username);  // Añadido username como parámetro
+        void createGroup(string groupName, string username);
         void addUserToGroup(string groupName, string userName);
         void sendMessageToGroup(string groupName, string message, string sender);
-        void sendMessageToUser(string userName, string message); // Nuevo método para enviar mensaje a un usuario específico
+        void sendMessageToUser(string userName, string message, string sender);
         void listGroups();
-        void registerUser(string username);
+        void registerUserWithProxy(string username, string userProxy);
+    }
+
+    interface User {
+        void receiveMessage(string message, string sender);
     }
 }
